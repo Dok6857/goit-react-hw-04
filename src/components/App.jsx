@@ -7,11 +7,13 @@ import { ImageGallery } from './ImageGallery/ImageGallery';
 import { Loader } from './Loader/Loader';
 import { ErrorMessage } from './ErrorMessage/ErrorMessage';
 import { LoadMoreBtn } from './LoadMoreBtn/LoadMoreBtn';
+import Modal from 'react-modal';
 
 export function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [page, setPage] = useState(1);
   const [images, setImages] = useState([]);
+  const [totalPages, setTotalPages] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(false);
 
@@ -19,6 +21,7 @@ export function App() {
     if (!searchQuery) {
       return;
     }
+    Modal.setAppElement("#root");
 
     const getImages = async () => {
       try {
@@ -26,11 +29,9 @@ export function App() {
         setError(false);
         const imageData = await fetchImages(searchQuery, page);
 
-        setImages(prevImages => [...prevImages, ...imageData.results]
-        );
+        setTotalPages(imageData.total_pages);
 
-        setImages(imageData.results);
-        console.log(imageData.results);
+        setImages(prevImages => [...prevImages, ...imageData.results]);
 
         if (searchQuery.trim() === "") {
           toast.error("The search field cannot be empty!");
@@ -63,7 +64,9 @@ export function App() {
   };
 
   const handleLoadMore = async () => {
-    setPage(page + 1)
+    if (page < totalPages) {
+      setPage(page + 1);
+    }
   };
 
   return (
@@ -71,8 +74,8 @@ export function App() {
       <Toaster position="top-right" reverseOrder={true} />
       <SearchBar onSearch={handleSearch} />
       {images.length > 0 && <ImageGallery receivedImages={images} />}
-      {images.length > 0 && <LoadMoreBtn onClick={handleLoadMore} />}
-      {(isLoading && images.length - 1) && <Loader />}
+      {page < totalPages && images.length > 0 && <LoadMoreBtn onClick={handleLoadMore} />}
+      {isLoading && <Loader />}
       {error && <ErrorMessage />}
     </>
   );

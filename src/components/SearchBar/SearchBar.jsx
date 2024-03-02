@@ -24,4 +24,3 @@ export const SearchBar = ({ onSearch }) => {
     </header>
   );
 };
-// розглянь можливість НЕ використання Formik
