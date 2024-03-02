@@ -1,22 +1,21 @@
 import axios from 'axios';
 
 const accessKey = 'zY3ucKRYgbb-SuVMAOyph5NzqnlpY5nMPvfBAl01IGE' 
+axios.defaults.baseURL = 'https://api.unsplash.com';
 
 export const fetchImages = async (searchQuery, page = 1) => {
-  axios.defaults.baseURL = 'https://api.unsplash.com';
 
-  const response = await axios.get('/search/photos', {
-    params: {
-      query: searchQuery,
-      client_id: accessKey,
-      hitsPerPage: 10,
-      page,
-    },
-  });
-
-  if (response.data && Array.isArray(response.data.hits)) {
-    return response.data.results;
-  } else {
-    throw new Error('Unexpected response structure');
-  }
-};
+  const params = {
+    query: searchQuery,
+    page,
+    per_page: 10,
+    client_id: accessKey,
+}
+try {
+    const response = await axios.get(`search/photos/?${new URLSearchParams(params).toString()}`);
+    return response.data;
+}
+catch (error) {
+    console.log(error.message);
+}
+}

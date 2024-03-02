@@ -1,13 +1,15 @@
 import { useEffect, useState } from 'react';
 import './App.css';
 import { SearchBar } from './SearchBar/SearchBar';
-import toast, { Toaster } from "react-hot-toast";
+import toast, { Toaster } from 'react-hot-toast';
 import { fetchImages } from '../images-api';
 import { ImageGallery } from './ImageGallery/ImageGallery';
 import { Loader } from './Loader/Loader';
+import { ErrorMessage } from './ErrorMessage/ErrorMessage';
+import { LoadMoreBtn } from './LoadMoreBtn/LoadMoreBtn';
 
 export function App() {
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState('');
   const [page, setPage] = useState(1);
   const [images, setImages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -20,36 +22,58 @@ export function App() {
 
     const getImages = async () => {
       try {
-        setIsLoading(true)
-        setError(false)
+        setIsLoading(true);
+        setError(false);
         const imageData = await fetchImages(searchQuery, page);
 
-        setImages((prevImages) => {
-          return [...prevImages, ...imageData];
-        });
+        setImages(prevImages => [...prevImages, ...imageData.results]
+        );
+
+        setImages(imageData.results);
+        console.log(imageData.results);
+
+        if (searchQuery.trim() === "") {
+          toast.error("The search field cannot be empty!");
+          return;
+        } else if (!imageData.total) {
+          toast.error(
+            "Sorry, we haven't found the photos for your request.\nTry writing it differently.",
+            {
+              duration: 6000,
+            }
+          );
+        } else {
+          toast.success(`Wow! We've found ${imageData.total} pictures`);
+        }
 
       } catch (error) {
-        setError(true)
-
+        setError(true);
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
-    }
-    
-    getImages()
+    };
 
-  }, [page, searchQuery])
+    getImages();
+  }, [page, searchQuery]);
 
-  const handleSearch = (newQuery) => {
+  const handleSearch = newQuery => {
     setSearchQuery(newQuery);
     setPage(1);
-    setImages([])
-  }
+    setImages([]);
+  };
 
+  const handleLoadMore = async () => {
+    setPage(page + 1)
+  };
 
-  return <>
-    <SearchBar onSearch={handleSearch}/>
-    {images.length > 0 && (<ImageGallery receivedImages={images} />)}
-    {isLoading && <Loader />}
-  </>;
+  return (
+    <>
+      <Toaster position="top-right" reverseOrder={true} />
+      <SearchBar onSearch={handleSearch} />
+      {images.length > 0 && <ImageGallery receivedImages={images} />}
+      {images.length > 0 && <LoadMoreBtn onClick={handleLoadMore} />}
+      {(isLoading && images.length - 1) && <Loader />}
+      {error && <ErrorMessage />}
+    </>
+  );
 }

@@ -1,18 +1,20 @@
+import css from './ImageCard.module.css'
+
 export const ImageCard = ({
   image: {
     likes,
     description,
     urls: { small },
-    user: { last_name },
+    user: { name },
   },
 }) => {
   return (
     <div>
-      <img src={small} alt={description} />
+      <img src={small} alt={description} width={200} height={250}/>
 
-      <div>
+      <div className={css.imgInfo}>
         <p>Likes: {likes}</p>
-        <p>Author: {last_name}</p>
+        <p>Author: {name}</p>
       </div>
     </div>
   );

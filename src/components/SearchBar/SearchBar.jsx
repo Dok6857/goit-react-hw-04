@@ -1,4 +1,5 @@
 import { Field, Form, Formik } from 'formik';
+import { IoMdSearch } from "react-icons/io";
 
 export const SearchBar = ({ onSearch }) => {
   return (
@@ -12,13 +13,12 @@ export const SearchBar = ({ onSearch }) => {
       >
         <Form>
           <Field
-            type="text"
             name="query"
             autoComplete="off"
             autoFocus
             placeholder="Search images and photos"
           />
-          <button type="submit">Search</button>
+          <button type="submit"><IoMdSearch /></button>
         </Form>
       </Formik>
     </header>

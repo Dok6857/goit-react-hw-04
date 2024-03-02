@@ -1,12 +1,13 @@
 import { ImageCard } from '../ImageCard/ImageCard';
+import css from './ImageGallery.module.css'
 
 export const ImageGallery = ({ receivedImages }) => {
     console.log(receivedImages);
 
   return (
-    <ul>
+    <ul className={css.gallery}>
       {receivedImages.map(receivedImage => (
-        <li key={receivedImage.id}>
+        <li className={css.galleryItem} key={receivedImage.id}>
           <ImageCard image={receivedImage} />
         </li>
       ))}
