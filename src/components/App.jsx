@@ -8,6 +8,7 @@ import { Loader } from './Loader/Loader';
 import { ErrorMessage } from './ErrorMessage/ErrorMessage';
 import { LoadMoreBtn } from './LoadMoreBtn/LoadMoreBtn';
 import Modal from 'react-modal';
+import { ImageModal } from './ImageModal/ImageModal';
 
 export function App() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -16,12 +17,14 @@ export function App() {
   const [totalPages, setTotalPages] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(false);
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [selectedImageUrl, setSelectedImageUrl] = useState('');
 
   useEffect(() => {
     if (!searchQuery) {
       return;
     }
-    Modal.setAppElement("#root");
+    Modal.setAppElement('#root');
 
     const getImages = async () => {
       try {
@@ -33,8 +36,8 @@ export function App() {
 
         setImages(prevImages => [...prevImages, ...imageData.results]);
 
-        if (searchQuery.trim() === "") {
-          toast.error("The search field cannot be empty!");
+        if (searchQuery.trim() === '') {
+          toast.error('The search field cannot be empty!');
           return;
         } else if (!imageData.total) {
           toast.error(
@@ -46,7 +49,6 @@ export function App() {
         } else {
           toast.success(`Wow! We've found ${imageData.total} pictures`);
         }
-
       } catch (error) {
         setError(true);
       } finally {
@@ -69,14 +71,32 @@ export function App() {
     }
   };
 
+  const openModal = imageUrl => {
+    setSelectedImageUrl(imageUrl);
+    setModalIsOpen(true);
+  };
+
+  const closeModal = () => {
+    setModalIsOpen(false);
+  };
+
   return (
     <>
       <Toaster position="top-right" reverseOrder={true} />
       <SearchBar onSearch={handleSearch} />
-      {images.length > 0 && <ImageGallery receivedImages={images} />}
-      {page < totalPages && images.length > 0 && <LoadMoreBtn onClick={handleLoadMore} />}
+      {images.length > 0 && (
+        <ImageGallery receivedImages={images} onImageClick={openModal} />
+      )}
+      {page < totalPages && images.length > 0 && (
+        <LoadMoreBtn onClick={handleLoadMore} />
+      )}
       {isLoading && <Loader />}
       {error && <ErrorMessage />}
+      <ImageModal
+        isOpen={modalIsOpen}
+        onRequestClose={closeModal}
+        imageUrl={selectedImageUrl}
+      />
     </>
   );
 }
