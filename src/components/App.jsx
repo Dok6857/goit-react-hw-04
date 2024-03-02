@@ -36,21 +36,15 @@ export function App() {
 
         setImages(prevImages => [...prevImages, ...imageData.results]);
 
-        if (searchQuery.trim() === '') {
-          toast.error('The search field cannot be empty!');
-          return;
-        } else if (!imageData.total) {
-          toast.error(
-            "Sorry, we haven't found the photos for your request.\nTry writing it differently.",
-            {
-              duration: 6000,
-            }
-          );
+        if (imageData.results.length === 0) {
+          toast.error("Oops!")
         } else {
-          toast.success(`Wow! We've found ${imageData.total} pictures`);
+          toast.success(`Look at these beautiful images!`);
         }
+
       } catch (error) {
         setError(true);
+        toast.error('An error occurred while fetching images.');
       } finally {
         setIsLoading(false);
       }
@@ -60,6 +54,11 @@ export function App() {
   }, [page, searchQuery]);
 
   const handleSearch = newQuery => {
+    if (newQuery.trim() === '') {
+      toast.error('The search field cannot be empty!');
+      return;
+    } 
+
     setSearchQuery(newQuery);
     setPage(1);
     setImages([]);
